@@ -86,6 +86,7 @@ export function Step2ScheduleSelection() {
       setValue('schedule.batch', selected.batch);
       setValue('schedule.startDate', selected.startDate);
       setValue('schedule.endDate', selected.endDate);
+      setValue('schedule.duration', selected.duration ?? '');
     }
   }, [selected, setValue]);
 

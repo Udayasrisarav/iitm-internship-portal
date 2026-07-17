@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   FileText,
@@ -11,7 +11,6 @@ import {
   Building2,
   GraduationCap,
 } from 'lucide-react';
-import { useRole } from '../../contexts/RoleContext';
 
 const features = [
   { icon: GitBranch, title: 'Application Workflow', desc: 'A guided multi-step wizard takes applicants from personal details to submission with validation at every stage.' },
@@ -25,16 +24,18 @@ const features = [
 const processSteps = [
   { label: 'Application Form', desc: 'Personal & academic details' },
   { label: 'Schedule Selection', desc: 'Department, professor & batch' },
-  { label: 'Security Form', desc: 'Security permission' },
-  { label: 'Bank Details & Documents', desc: 'Banking & uploads' },
-  { label: 'Review & Submit', desc: 'Confirm & submit' },
-  { label: 'Verification', desc: 'Supervisor & chairman review' },
-  { label: 'Internship Progress', desc: 'Activities & attendance' },
-  { label: 'Completion', desc: 'Certificate issued' },
+  { label: 'Security Form', desc: 'Security permission (A4)' },
+  { label: 'Bank & Documents', desc: 'Banking & required uploads' },
+  { label: 'Review & Submit', desc: 'Confirm & submit for verification' },
+  { label: 'Under Verification', desc: 'Supervisor review & approval' },
+  { label: 'Internship Active', desc: 'Daily activities & attendance' },
+  { label: 'Certificates', desc: 'Generated & signed by chairman' },
 ];
 
 export function LandingPage() {
-  const { switchRole } = useRole();
+  const navigate = useNavigate();
+
+  const getStarted = () => navigate('/login');
 
   return (
     <div className="min-h-screen bg-white">
@@ -51,15 +52,9 @@ export function LandingPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/applicant" onClick={() => switchRole('applicant')} className="btn-ghost hidden sm:inline-flex">
-              Applicant
-            </Link>
-            <Link to="/supervisor" onClick={() => switchRole('supervisor')} className="btn-ghost hidden sm:inline-flex">
-              Supervisor
-            </Link>
-            <Link to="/applicant" onClick={() => switchRole('applicant')} className="btn-primary">
+            <button type="button" onClick={getStarted} className="btn-primary">
               Sign In <ArrowRight className="h-4 w-4" />
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -81,17 +76,14 @@ export function LandingPage() {
               with role-based dashboards for applicants, supervisors, chairmen, and administrators.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link to="/applicant" onClick={() => switchRole('applicant')} className="btn-accent text-base">
+              <button type="button" onClick={getStarted} className="btn-accent text-base">
                 Get Started <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link to="/supervisor" onClick={() => switchRole('supervisor')} className="btn bg-white/10 text-white ring-1 ring-inset ring-white/25 backdrop-blur hover:bg-white/15">
-                Supervisor Console
-              </Link>
+              </button>
             </div>
 
             <dl className="mt-14 grid max-w-xl grid-cols-3 gap-6">
               {[
-                { label: 'Workflow Stages', value: '8' },
+                { label: 'Workflow Stages', value: '11' },
                 { label: 'User Roles', value: '4' },
                 { label: 'Single Entity', value: '1' },
               ].map((stat) => (
@@ -170,13 +162,12 @@ export function LandingPage() {
           {[
             { role: 'applicant', title: 'Applicant', desc: 'Submit and track your internship application.', icon: GraduationCap },
             { role: 'supervisor', title: 'Supervisor', desc: 'Review, approve and monitor interns.', icon: FileText },
-            { role: 'chairman', title: 'Chairman', desc: 'Approve documents and certificates.', icon: ShieldCheck },
+            { role: 'chairman', title: 'Chairman', desc: 'Sign documents and certificates.', icon: ShieldCheck },
             { role: 'admin', title: 'Super Admin', desc: 'Manage users and all applications.', icon: Building2 },
           ].map((r) => {
             const Icon = r.icon;
-            const to = r.role === 'admin' ? '/admin/dashboard' : `/${r.role}`;
             return (
-              <Link key={r.role} to={to} onClick={() => switchRole(r.role as never)} className="card group p-6 transition hover:shadow-elevated">
+              <button key={r.role} type="button" onClick={getStarted} className="card group p-6 text-left transition hover:shadow-elevated">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition group-hover:bg-brand-600 group-hover:text-white">
                   <Icon className="h-5 w-5" />
                 </span>
@@ -185,7 +176,7 @@ export function LandingPage() {
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 transition group-hover:gap-1.5">
                   Enter <ArrowRight className="h-4 w-4" />
                 </span>
-              </Link>
+              </button>
             );
           })}
         </div>
@@ -199,12 +190,9 @@ export function LandingPage() {
             Create your application, track it through every stage, and receive your completion certificate — all in one portal.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/applicant" onClick={() => switchRole('applicant')} className="btn-accent text-base">
-              <CheckCircle2 className="h-5 w-5" /> Start Application
-            </Link>
-            <Link to="/applicant/workflow" onClick={() => switchRole('applicant')} className="btn bg-white/10 text-white ring-1 ring-inset ring-white/25 hover:bg-white/15">
-              View Workflow
-            </Link>
+            <button type="button" onClick={getStarted} className="btn-accent text-base">
+              <CheckCircle2 className="h-5 w-5" /> Get Started
+            </button>
           </div>
         </div>
       </section>
@@ -231,10 +219,7 @@ export function LandingPage() {
             <div>
               <p className="text-sm font-semibold text-ink-900">Portal</p>
               <ul className="mt-3 space-y-2 text-sm text-ink-500">
-                <li><Link to="/applicant" onClick={() => switchRole('applicant')} className="hover:text-brand-600">Applicant</Link></li>
-                <li><Link to="/supervisor" onClick={() => switchRole('supervisor')} className="hover:text-brand-600">Supervisor</Link></li>
-                <li><Link to="/chairman" onClick={() => switchRole('chairman')} className="hover:text-brand-600">Chairman</Link></li>
-                <li><Link to="/admin/dashboard" onClick={() => switchRole('admin')} className="hover:text-brand-600">Admin</Link></li>
+                <li><button type="button" onClick={getStarted} className="hover:text-brand-600">Sign In</button></li>
               </ul>
             </div>
             <div>

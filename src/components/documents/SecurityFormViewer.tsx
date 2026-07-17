@@ -56,16 +56,25 @@ export function SecurityFormViewer({ application }: { application: InternshipApp
 
       <div className="mt-10 grid grid-cols-3 gap-6 text-xs">
         <div className="border-t border-ink-400 pt-1.5">
-          <p className="font-semibold text-ink-700">Signature of Student</p>
-          <div className="mt-10 text-ink-500">{s.studentName}</div>
+          <p className="font-semibold text-ink-700">Applicant Signature</p>
+          {application.securitySignatures?.applicant ? (
+            <p className="mt-2 text-[10px] text-success-600">Signed {formatDate(application.securitySignatures.applicant.signedAt)}</p>
+          ) : <p className="mt-2 text-[10px] text-ink-300">Pending</p>}
+          <div className="mt-8 text-ink-500">{s.studentName}</div>
         </div>
         <div className="border-t border-ink-400 pt-1.5">
-          <p className="font-semibold text-ink-700">Signature of Professor In Charge</p>
-          <div className="mt-10 text-ink-500">{s.professorInCharge}</div>
+          <p className="font-semibold text-ink-700">Chief Security Officer</p>
+          {application.securitySignatures?.chiefSecurityOfficer ? (
+            <p className="mt-2 text-[10px] text-success-600">Signed {formatDate(application.securitySignatures.chiefSecurityOfficer.signedAt)}</p>
+          ) : <p className="mt-2 text-[10px] text-ink-300">Pending</p>}
+          <div className="mt-8 text-ink-400">Security Section</div>
         </div>
         <div className="border-t border-ink-400 pt-1.5">
-          <p className="font-semibold text-ink-700">For Security Section Use</p>
-          <div className="mt-10 text-ink-400">Approved / Not Approved</div>
+          <p className="font-semibold text-ink-700">Chairman Signature</p>
+          {application.securitySignatures?.chairman ? (
+            <p className="mt-2 text-[10px] text-success-600">Signed {formatDate(application.securitySignatures.chairman.signedAt)}</p>
+          ) : <p className="mt-2 text-[10px] text-ink-300">Pending</p>}
+          <div className="mt-8 text-ink-400">{s.departmentIITM}</div>
         </div>
       </div>
     </A4Layout>

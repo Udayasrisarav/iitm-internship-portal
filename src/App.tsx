@@ -5,20 +5,15 @@ import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 import { LandingPage } from './pages/landing/LandingPage';
-import { ApplicantDashboard } from './pages/applicant/ApplicantDashboard';
+import { LoginPage } from './pages/auth/LoginPage';
+import { ApplicationsDashboard } from './pages/applications/ApplicationsDashboard';
+import { ApplicationDetails } from './pages/applications/ApplicationDetails';
 import { ApplicationWizard } from './pages/applicant/ApplicationWizard';
-import { ApplicantWorkflow } from './pages/applicant/ApplicantWorkflow';
 import { ApplicantActivities } from './pages/applicant/ApplicantActivities';
 import { ApplicantAttendance } from './pages/applicant/ApplicantAttendance';
-import { ApplicantDocuments } from './pages/applicant/ApplicantDocuments';
-import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
-import { SupervisorApplications } from './pages/supervisor/SupervisorApplications';
-import { SupervisorReview } from './pages/supervisor/SupervisorReview';
-import { ChairmanDashboard } from './pages/chairman/ChairmanDashboard';
-import { ChairmanDocuments } from './pages/chairman/ChairmanDocuments';
+
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminUsers } from './pages/admin/AdminUsers';
-import { AdminApplications } from './pages/admin/AdminApplications';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export default function App() {
@@ -28,45 +23,41 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-            {/* Applicant */}
-            <Route element={<ProtectedRoute allow={['applicant']} />}>
+            {/* Unified application-centric routes — shared by all roles */}
+            <Route element={<ProtectedRoute allow={['applicant', 'supervisor', 'chairman', 'admin']} />}>
               <Route element={<DashboardLayout role="applicant" />}>
-                <Route path="/applicant" element={<ApplicantDashboard />} />
-                <Route path="/applicant/application" element={<ApplicationWizard />} />
-                <Route path="/applicant/workflow" element={<ApplicantWorkflow />} />
-                <Route path="/applicant/activities" element={<ApplicantActivities />} />
-                <Route path="/applicant/attendance" element={<ApplicantAttendance />} />
-                <Route path="/applicant/documents" element={<ApplicantDocuments />} />
+                <Route path="/applications" element={<ApplicationsDashboard />} />
+                <Route path="/applications/new" element={<ApplicationWizard />} />
+                <Route path="/applications/my" element={<Navigate to="/applications" replace />} />
+                <Route path="/applications/:id" element={<ApplicationDetails />} />
+                <Route path="/applications/:id/workflow" element={<ApplicationDetails />} />
+                <Route path="/applications/:id/security-form" element={<ApplicationDetails />} />
+                <Route path="/applications/:id/documents" element={<ApplicationDetails />} />
+                <Route path="/applications/:id/activities" element={<ApplicantActivities />} />
+                <Route path="/applications/:id/attendance" element={<ApplicantAttendance />} />
+                <Route path="/applications/:id/certificates" element={<ApplicationDetails />} />
               </Route>
             </Route>
 
-            {/* Supervisor */}
-            <Route element={<ProtectedRoute allow={['supervisor']} />}>
-              <Route element={<DashboardLayout role="supervisor" />}>
-                <Route path="/supervisor" element={<SupervisorDashboard />} />
-                <Route path="/supervisor/applications" element={<SupervisorApplications />} />
-                <Route path="/supervisor/review/:id" element={<SupervisorReview />} />
-              </Route>
-            </Route>
-
-            {/* Chairman */}
-            <Route element={<ProtectedRoute allow={['chairman']} />}>
-              <Route element={<DashboardLayout role="chairman" />}>
-                <Route path="/chairman" element={<ChairmanDashboard />} />
-                <Route path="/chairman/documents" element={<ChairmanDocuments />} />
-              </Route>
-            </Route>
-
-            {/* Admin */}
+            {/* Admin-only routes */}
             <Route element={<ProtectedRoute allow={['admin']} />}>
               <Route element={<DashboardLayout role="admin" />}>
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
-                <Route path="/admin/applications" element={<AdminApplications />} />
               </Route>
             </Route>
+
+            {/* Legacy role routes redirect to unified applications page */}
+            <Route path="/applicant" element={<Navigate to="/applications" replace />} />
+            <Route path="/applicant/*" element={<Navigate to="/applications" replace />} />
+            <Route path="/supervisor" element={<Navigate to="/applications" replace />} />
+            <Route path="/supervisor/*" element={<Navigate to="/applications" replace />} />
+            <Route path="/chairman" element={<Navigate to="/applications" replace />} />
+            <Route path="/chairman/*" element={<Navigate to="/applications" replace />} />
+            <Route path="/admin/applications" element={<Navigate to="/applications" replace />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

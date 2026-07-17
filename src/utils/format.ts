@@ -31,13 +31,53 @@ export const applicationStatusMeta: Record<
   { label: string; tone: 'brand' | 'success' | 'warning' | 'error' | 'neutral' }
 > = {
   draft: { label: 'Draft', tone: 'neutral' },
-  submitted: { label: 'Submitted', tone: 'brand' },
-  under_review: { label: 'Under Review', tone: 'warning' },
+  submitted: { label: 'Application Submitted', tone: 'brand' },
+  schedule_selected: { label: 'Schedule Selected', tone: 'brand' },
+  security_submitted: { label: 'Security Form Submitted', tone: 'brand' },
+  bank_docs_submitted: { label: 'Bank & Documents Submitted', tone: 'brand' },
+  under_review: { label: 'Under Verification', tone: 'warning' },
   approved: { label: 'Approved', tone: 'success' },
   rejected: { label: 'Rejected', tone: 'error' },
+  internship_active: { label: 'Internship Active', tone: 'brand' },
   in_progress: { label: 'In Progress', tone: 'brand' },
-  completed: { label: 'Completed', tone: 'success' },
+  completed: { label: 'Internship Completed', tone: 'success' },
+  certificates_generated: { label: 'Certificates Generated', tone: 'success' },
+  awaiting_chairman: { label: 'Awaiting Chairman Signature', tone: 'warning' },
+  signed: { label: 'Signed', tone: 'success' },
+  closed: { label: 'Closed', tone: 'neutral' },
 };
+
+export const statusOrder: ApplicationStatus[] = [
+  'draft',
+  'submitted',
+  'schedule_selected',
+  'security_submitted',
+  'bank_docs_submitted',
+  'under_review',
+  'approved',
+  'rejected',
+  'internship_active',
+  'in_progress',
+  'completed',
+  'certificates_generated',
+  'awaiting_chairman',
+  'signed',
+  'closed',
+];
+
+export function computeDuration(startISO?: string, endISO?: string): string {
+  if (!startISO || !endISO) return '';
+  const start = new Date(startISO);
+  const end = new Date(endISO);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return '';
+  const diff = Math.max(0, end.getTime() - start.getTime());
+  const days = Math.floor(diff / 86400000);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  if (months >= 1) return `${months} month${months > 1 ? 's' : ''}`;
+  if (weeks >= 1) return `${weeks} week${weeks > 1 ? 's' : ''}`;
+  return `${days} day${days > 1 ? 's' : ''}`;
+}
 
 export const attendanceStatusMeta: Record<
   AttendanceStatus,

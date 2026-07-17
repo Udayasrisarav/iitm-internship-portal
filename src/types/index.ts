@@ -2,14 +2,25 @@ export type Role = 'applicant' | 'supervisor' | 'chairman' | 'admin';
 
 export type Gender = 'male' | 'female' | 'other';
 
+// Ordered lifecycle statuses — each represents a step in the single
+// Internship Application workflow. Roles interact with the same record
+// at different points along this lifecycle.
 export type ApplicationStatus =
   | 'draft'
   | 'submitted'
+  | 'schedule_selected'
+  | 'security_submitted'
+  | 'bank_docs_submitted'
   | 'under_review'
   | 'approved'
   | 'rejected'
+  | 'internship_active'
   | 'in_progress'
-  | 'completed';
+  | 'completed'
+  | 'certificates_generated'
+  | 'awaiting_chairman'
+  | 'signed'
+  | 'closed';
 
 export type WorkflowStageId =
   | 'application_form'
@@ -19,7 +30,10 @@ export type WorkflowStageId =
   | 'review_submit'
   | 'verification'
   | 'internship_progress'
-  | 'completion';
+  | 'completion'
+  | 'certificates'
+  | 'chairman_signature'
+  | 'closed';
 
 export type DocumentKey =
   | 'aadhaar'
@@ -60,6 +74,29 @@ export interface ScheduleSelection {
   batch: string;
   startDate: string;
   endDate: string;
+  duration?: string;
+}
+
+export type SignatureRole = 'applicant' | 'chief_security_officer' | 'chairman';
+
+export interface SignatureState {
+  applicant?: { signedAt: string; signedBy: string };
+  chiefSecurityOfficer?: { signedAt: string; signedBy: string };
+  chairman?: { signedAt: string; signedBy: string };
+}
+
+export type CertificateKind =
+  | 'internship_certificate'
+  | 'attendance_certificate'
+  | 'internship_report';
+
+export interface CertificateRecord {
+  kind: CertificateKind;
+  title: string;
+  generatedAt?: string;
+  signed?: boolean;
+  signedAt?: string;
+  signedBy?: string;
 }
 
 export interface SecurityForm {
@@ -147,6 +184,10 @@ export interface InternshipApplication {
   attendance: AttendanceEntry[];
   workflow: WorkflowStage[];
   currentStage: WorkflowStageId;
+  securitySignatures?: SignatureState;
+  certificates?: CertificateRecord[];
+  chairmanSigned?: boolean;
+  locked?: boolean;
 }
 
 export interface User {

@@ -15,9 +15,12 @@ export const workflowStageDefs: { id: WorkflowStageId; label: string; descriptio
   { id: 'security_form', label: 'Security Form', description: 'Security permission for internship' },
   { id: 'bank_documents', label: 'Bank Details & Documents', description: 'Banking & required uploads' },
   { id: 'review_submit', label: 'Review & Submit', description: 'Confirm and submit application' },
-  { id: 'verification', label: 'Verification', description: 'Supervisor & chairman verification' },
-  { id: 'internship_progress', label: 'Internship Progress', description: 'Activities & attendance' },
-  { id: 'completion', label: 'Completion', description: 'Certificate generation' },
+  { id: 'verification', label: 'Under Verification', description: 'Supervisor verification & approval' },
+  { id: 'internship_progress', label: 'Internship Progress', description: 'Daily activities & attendance' },
+  { id: 'completion', label: 'Internship Completed', description: 'Activities closed out' },
+  { id: 'certificates', label: 'Certificates Generated', description: 'Certificate & report generation' },
+  { id: 'chairman_signature', label: 'Chairman Signature', description: 'Awaiting chairman signature' },
+  { id: 'closed', label: 'Closed', description: 'Signed and closed' },
 ];
 
 export function buildWorkflow(current: WorkflowStageId, submitted: boolean): WorkflowStage[] {
@@ -32,6 +35,18 @@ export function buildWorkflow(current: WorkflowStageId, submitted: boolean): Wor
     }
     return { ...d, status: 'pending' };
   });
+}
+
+// Generates sequential applicant IDs in the IITM-<YEAR>-#### format.
+export function generateApplicantId(existing: { applicantId: string }[], year = new Date().getFullYear()): string {
+  const prefix = `IITM-${year}-`;
+  const nums = existing
+    .map((a) => a.applicantId)
+    .filter((id) => id.startsWith(prefix))
+    .map((id) => parseInt(id.slice(prefix.length), 10))
+    .filter((n) => Number.isFinite(n));
+  const next = (nums.length ? Math.max(...nums) : 0) + 1;
+  return `${prefix}${String(next).padStart(4, '0')}`;
 }
 
 const sampleDocs: DocumentFile[] = [
@@ -107,8 +122,8 @@ const attendance: AttendanceEntry[] = Array.from({ length: 30 }).map((_, i) => {
 export const mockApplications: InternshipApplication[] = [
   {
     id: 'app-2025-0001',
-    applicantId: 'IITM-INT-1042',
-    status: 'submitted',
+    applicantId: 'IITM-2025-0001',
+    status: 'under_review',
     createdAt: '2025-05-01T09:00:00Z',
     updatedAt: '2025-05-01T09:20:00Z',
     submittedAt: '2025-05-01T09:20:00Z',
@@ -134,6 +149,7 @@ export const mockApplications: InternshipApplication[] = [
       batch: 'Summer 2025 — Batch A',
       startDate: '2025-06-02',
       endDate: '2025-07-31',
+      duration: '2 months',
     },
     security: {
       studentName: 'Ananya Raman',
@@ -170,11 +186,17 @@ export const mockApplications: InternshipApplication[] = [
     attendance: [],
     workflow: buildWorkflow('verification', true),
     currentStage: 'verification',
+    securitySignatures: {
+      applicant: { signedAt: '2025-05-01T09:18:00Z', signedBy: 'Ananya Raman' },
+    },
+    certificates: [],
+    chairmanSigned: false,
+    locked: true,
   },
   {
     id: 'app-2025-0002',
-    applicantId: 'IITM-INT-1051',
-    status: 'approved',
+    applicantId: 'IITM-2025-0002',
+    status: 'internship_active',
     createdAt: '2025-04-22T08:00:00Z',
     updatedAt: '2025-04-28T14:00:00Z',
     submittedAt: '2025-04-22T08:40:00Z',
@@ -200,6 +222,7 @@ export const mockApplications: InternshipApplication[] = [
       batch: 'Summer 2025 — Batch B',
       startDate: '2025-05-19',
       endDate: '2025-07-18',
+      duration: '2 months',
     },
     security: {
       studentName: 'Rohit Shankar',
@@ -236,11 +259,17 @@ export const mockApplications: InternshipApplication[] = [
     attendance,
     workflow: buildWorkflow('internship_progress', true),
     currentStage: 'internship_progress',
+    securitySignatures: {
+      applicant: { signedAt: '2025-04-22T08:38:00Z', signedBy: 'Rohit Shankar' },
+    },
+    certificates: [],
+    chairmanSigned: false,
+    locked: true,
   },
   {
     id: 'app-2025-0003',
-    applicantId: 'IITM-INT-1067',
-    status: 'in_progress',
+    applicantId: 'IITM-2025-0003',
+    status: 'awaiting_chairman',
     createdAt: '2025-03-10T07:30:00Z',
     updatedAt: '2025-07-10T12:00:00Z',
     submittedAt: '2025-03-10T08:10:00Z',
@@ -266,6 +295,7 @@ export const mockApplications: InternshipApplication[] = [
       batch: 'Spring 2025 — Batch C',
       startDate: '2025-04-07',
       endDate: '2025-06-06',
+      duration: '2 months',
     },
     security: {
       studentName: 'Meera Iyer',
@@ -300,13 +330,24 @@ export const mockApplications: InternshipApplication[] = [
     ],
     activities,
     attendance,
-    workflow: buildWorkflow('internship_progress', true),
-    currentStage: 'internship_progress',
+    workflow: buildWorkflow('chairman_signature', true),
+    currentStage: 'chairman_signature',
+    securitySignatures: {
+      applicant: { signedAt: '2025-03-10T08:08:00Z', signedBy: 'Meera Iyer' },
+      chiefSecurityOfficer: { signedAt: '2025-03-15T14:00:00Z', signedBy: 'CSO Office' },
+    },
+    certificates: [
+      { kind: 'internship_certificate', title: 'Internship Certificate', generatedAt: '2025-06-08T10:00:00Z' },
+      { kind: 'attendance_certificate', title: 'Attendance Certificate', generatedAt: '2025-06-08T10:05:00Z' },
+      { kind: 'internship_report', title: 'Internship Report', generatedAt: '2025-06-08T10:10:00Z' },
+    ],
+    chairmanSigned: false,
+    locked: true,
   },
   {
     id: 'app-2025-0004',
-    applicantId: 'IITM-INT-1080',
-    status: 'submitted',
+    applicantId: 'IITM-2025-0004',
+    status: 'under_review',
     createdAt: '2025-05-08T10:00:00Z',
     updatedAt: '2025-05-08T10:25:00Z',
     submittedAt: '2025-05-08T10:25:00Z',
@@ -332,6 +373,7 @@ export const mockApplications: InternshipApplication[] = [
       batch: 'Summer 2025 — Batch A',
       startDate: '2025-06-02',
       endDate: '2025-07-31',
+      duration: '2 months',
     },
     security: {
       studentName: 'Karthik Reddy',
@@ -359,6 +401,74 @@ export const mockApplications: InternshipApplication[] = [
     attendance: [],
     workflow: buildWorkflow('verification', true),
     currentStage: 'verification',
+    securitySignatures: {
+      applicant: { signedAt: '2025-05-08T10:22:00Z', signedBy: 'Karthik Reddy' },
+    },
+    certificates: [],
+    chairmanSigned: false,
+    locked: true,
+  },
+  {
+    id: 'app-2025-0005',
+    applicantId: 'IITM-2026-0001',
+    status: 'draft',
+    submittedAt: undefined,
+    updatedAt: '2026-07-15T09:00:00Z',
+    createdAt: '2026-07-15T09:00:00Z',
+    personal: {
+      fullName: 'Priya Nair',
+      email: 'priya.nair2026@iitm.ac.in',
+      mobile: '+91 90000 12345',
+      gender: 'female',
+      dateOfBirth: '2004-03-12',
+      address: '21, Marine Drive, Kochi, Kerala 682029',
+    },
+    academic: {
+      collegeName: 'National Institute of Technology, Calicut',
+      department: 'Computer Science & Engineering',
+      registerNumber: 'NITC-CS-2026-014',
+      yearOfStudy: '3rd Year',
+      skills: 'Python, PyTorch, NLP, Data Visualization',
+      areaOfInterest: 'Natural Language Processing',
+    },
+    schedule: {
+      department: 'Computer Science & Engineering',
+      professor: '',
+      batch: '',
+      startDate: '',
+      endDate: '',
+      duration: '',
+    },
+    security: {
+      studentName: 'Priya Nair',
+      fatherName: '',
+      collegeName: 'National Institute of Technology, Calicut',
+      presentAddress: '21, Marine Drive, Kochi, Kerala 682029',
+      contactNumber: '+91 90000 12345',
+      idType: 'aadhaar',
+      idNumber: '',
+      departmentIITM: 'Computer Science & Engineering',
+      professorInCharge: '',
+      durationFrom: '',
+      durationTo: '',
+    },
+    bank: {
+      accountHolderName: '',
+      accountNumber: '',
+      ifscCode: '',
+      bankName: '',
+      branchName: '',
+    },
+    documents: [],
+    verification: [],
+    activities: [],
+    attendance: [],
+    workflow: buildWorkflow('application_form', false),
+    currentStage: 'application_form',
+    securitySignatures: {},
+    certificates: [],
+    chairmanSigned: false,
+    locked: false,
   },
 ];
 
@@ -403,6 +513,7 @@ export interface ScheduleOption {
   batch: string;
   startDate: string;
   endDate: string;
+  duration?: string;
 }
 
 export const mockScheduleOptions: ScheduleOption[] = [
@@ -412,6 +523,7 @@ export const mockScheduleOptions: ScheduleOption[] = [
     batch: 'Summer 2025 — Batch A',
     startDate: '2025-06-02',
     endDate: '2025-07-31',
+    duration: '2 months',
   },
   {
     department: 'Computer Science & Engineering',
@@ -419,6 +531,7 @@ export const mockScheduleOptions: ScheduleOption[] = [
     batch: 'Summer 2025 — Batch B',
     startDate: '2025-06-09',
     endDate: '2025-08-08',
+    duration: '2 months',
   },
   {
     department: 'Electrical Engineering',
@@ -426,6 +539,7 @@ export const mockScheduleOptions: ScheduleOption[] = [
     batch: 'Summer 2025 — Batch B',
     startDate: '2025-05-19',
     endDate: '2025-07-18',
+    duration: '2 months',
   },
   {
     department: 'Mechanical Engineering',
@@ -433,6 +547,7 @@ export const mockScheduleOptions: ScheduleOption[] = [
     batch: 'Summer 2025 — Batch C',
     startDate: '2025-07-07',
     endDate: '2025-09-05',
+    duration: '2 months',
   },
   {
     department: 'Aerospace Engineering',

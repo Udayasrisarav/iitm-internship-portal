@@ -36,7 +36,7 @@ export const documentPlaceholderActions = {
   onPrint: () => window.print(),
 };
 
-export type DocumentKind = 'internship_form' | 'security_form' | 'certificate';
+export type DocumentKind = 'internship_form' | 'security_form' | 'certificate' | 'attendance_certificate' | 'internship_report';
 
 export interface DocumentDescriptor {
   kind: DocumentKind;

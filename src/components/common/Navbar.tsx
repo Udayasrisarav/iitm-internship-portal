@@ -65,7 +65,7 @@ export function Navbar({ onMenuClick, title }: { onMenuClick: () => void; title:
                     onClick={() => {
                       switchRole(opt.role);
                       setOpen(false);
-                      navigate(`/${opt.role === 'admin' ? 'admin/dashboard' : opt.role}`);
+                      navigate('/applications');
                     }}
                     className={classNames(
                       'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition',

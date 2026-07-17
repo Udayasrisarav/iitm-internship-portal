@@ -6,6 +6,7 @@ interface RoleContextValue {
   user: User;
   role: Role;
   switchRole: (role: Role) => void;
+  setUser: (user: User) => void;
 }
 
 const roleUsers: Record<Role, User> = {
@@ -19,11 +20,15 @@ const RoleContext = createContext<RoleContextValue | undefined>(undefined);
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<Role>('applicant');
+  const [user, setUserState] = useState<User>(roleUsers.applicant);
 
-  const switchRole = useCallback((next: Role) => setRole(next), []);
-  const user = roleUsers[role];
+  const switchRole = useCallback((next: Role) => {
+    setRole(next);
+    setUserState(roleUsers[next]);
+  }, []);
+  const setUser = useCallback((u: User) => setUserState(u), []);
 
-  const value = useMemo<RoleContextValue>(() => ({ user, role, switchRole }), [user, role, switchRole]);
+  const value = useMemo<RoleContextValue>(() => ({ user, role, switchRole, setUser }), [user, role, switchRole, setUser]);
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }

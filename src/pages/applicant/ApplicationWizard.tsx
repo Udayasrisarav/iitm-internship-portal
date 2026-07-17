@@ -23,7 +23,7 @@ function defaultFormData(): ApplicationFormData {
   return {
     personal: { fullName: '', email: '', mobile: '', gender: 'male', dateOfBirth: '', address: '' },
     academic: { collegeName: '', department: '', registerNumber: '', yearOfStudy: '', skills: '', areaOfInterest: '' },
-    schedule: { department: '', professor: '', batch: '', startDate: '', endDate: '' },
+    schedule: { department: '', professor: '', batch: '', startDate: '', endDate: '', duration: '' },
     security: {
       studentName: '', fatherName: '', collegeName: '', presentAddress: '', contactNumber: '',
       idType: 'aadhaar', idNumber: '', departmentIITM: '', professorInCharge: '', durationFrom: '', durationTo: '',
@@ -31,6 +31,10 @@ function defaultFormData(): ApplicationFormData {
     bank: { accountHolderName: '', accountNumber: '', ifscCode: '', bankName: '', branchName: '' },
     documents: [],
     documentsByKey: {},
+    securitySignatures: {},
+    certificates: [],
+    chairmanSigned: false,
+    locked: false,
   };
 }
 
@@ -100,10 +104,10 @@ export function ApplicationWizard() {
   const submit = async () => {
     setSubmitting(true);
     try {
-      const id = existing?.id ?? 'app-2025-0001';
+      const id = existing?.id ?? 'app-2025-0005';
       await applicationService.submitForVerification(id);
       await refresh();
-      navigate('/applicant/workflow');
+      navigate(`/applications/${id}`);
     } finally {
       setSubmitting(false);
     }

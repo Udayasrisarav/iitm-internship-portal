@@ -13,7 +13,7 @@ export function ProtectedRoute({ allow }: ProtectedRouteProps) {
   // Auth integration placeholder. When real auth is added, gate on session
   // presence here and redirect to a login page. For now we only enforce role.
   if (!allow.includes(role)) {
-    const fallback = role === 'admin' ? '/admin/dashboard' : `/${role}`;
+    const fallback = role === 'admin' ? '/admin/dashboard' : '/applications';
     return <Navigate to={fallback} state={{ from: location }} replace />;
   }
 

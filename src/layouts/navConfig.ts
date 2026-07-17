@@ -7,33 +7,33 @@ export interface NavItem {
   end?: boolean;
 }
 
+// Application-centric navigation. Every role works from the same
+// Internship Application entity — nav entries reflect the workflow
+// stage rather than a separate business module per role.
 export const roleNavItems: Record<Role, NavItem[]> = {
   applicant: [
-    { label: 'Dashboard', to: '/applicant', icon: 'LayoutDashboard', end: true },
-    { label: 'Application', to: '/applicant/application', icon: 'FileText' },
-    { label: 'Workflow', to: '/applicant/workflow', icon: 'GitBranch' },
-    { label: 'Daily Activities', to: '/applicant/activities', icon: 'ListChecks' },
-    { label: 'Attendance', to: '/applicant/attendance', icon: 'CalendarCheck' },
-    { label: 'Documents', to: '/applicant/documents', icon: 'FolderOpen' },
+    { label: 'Dashboard', to: '/applications', icon: 'LayoutDashboard', end: true },
+    { label: 'My Application', to: '/applications/my', icon: 'FileText' },
+    { label: 'New Application', to: '/applications/new', icon: 'FilePlus' },
   ],
   supervisor: [
-    { label: 'Dashboard', to: '/supervisor', icon: 'LayoutDashboard', end: true },
-    { label: 'Applications', to: '/supervisor/applications', icon: 'Inbox' },
+    { label: 'Applications', to: '/applications', icon: 'Inbox', end: true },
+    { label: 'Pending Review', to: '/applications?filter=under_review', icon: 'ClipboardCheck' },
   ],
   chairman: [
-    { label: 'Dashboard', to: '/chairman', icon: 'LayoutDashboard', end: true },
-    { label: 'Documents', to: '/chairman/documents', icon: 'ShieldCheck' },
+    { label: 'Applications', to: '/applications', icon: 'Inbox', end: true },
+    { label: 'Awaiting Signature', to: '/applications?filter=awaiting_chairman', icon: 'PenTool' },
   ],
   admin: [
     { label: 'Dashboard', to: '/admin/dashboard', icon: 'LayoutDashboard', end: true },
+    { label: 'Applications', to: '/applications', icon: 'FolderOpen', end: false },
     { label: 'Users', to: '/admin/users', icon: 'Users' },
-    { label: 'Applications', to: '/admin/applications', icon: 'FolderOpen' },
   ],
 };
 
 export const roleMeta: Record<Role, { title: string; subtitle: string }> = {
-  applicant: { title: 'Applicant Portal', subtitle: 'Apply, track, and complete your internship' },
-  supervisor: { title: 'Supervisor Console', subtitle: 'Review and verify internship applications' },
-  chairman: { title: 'Chairman Console', subtitle: 'Approve documents and certificates' },
-  admin: { title: 'Super Admin', subtitle: 'Manage users and platform applications' },
+  applicant: { title: 'Internship Portal', subtitle: 'Apply, track, and complete your internship' },
+  supervisor: { title: 'Internship Portal', subtitle: 'Review and verify internship applications' },
+  chairman: { title: 'Internship Portal', subtitle: 'Sign documents and certificates' },
+  admin: { title: 'Internship Portal', subtitle: 'Manage users and platform applications' },
 };
