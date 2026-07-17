@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-ink-50 text-ink-900 font-sans antialiased;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.ink.200') transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-ink-200;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-300;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 shadow-sm;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-ink-700 ring-1 ring-inset ring-ink-200 hover:bg-ink-50 hover:text-ink-900;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-ink-600 hover:bg-ink-100 hover:text-ink-900;
+  }
+  .btn-danger {
+    @apply btn bg-error-600 text-white hover:bg-error-700 active:bg-error-800 shadow-sm;
+  }
+  .btn-accent {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600 active:bg-accent-700 shadow-sm;
+  }
+  .card {
+    @apply rounded-xl border border-ink-200/70 bg-white shadow-card;
+  }
+  .card-elevated {
+    @apply rounded-xl border border-ink-200/70 bg-white shadow-elevated;
+  }
+  .input {
+    @apply block w-full rounded-lg border-0 bg-white px-3.5 py-2.5 text-sm text-ink-900 ring-1 ring-inset ring-ink-200 placeholder:text-ink-400 transition focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400;
+  }
+  .label {
+    @apply block text-sm font-medium text-ink-700;
+  }
+  .field-hint {
+    @apply mt-1 text-xs text-ink-400;
+  }
+  .field-error {
+    @apply mt-1 text-xs font-medium text-error-600;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .section-title {
+    @apply text-lg font-semibold text-ink-900;
+  }
+  .section-subtitle {
+    @apply text-sm text-ink-500;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
