@@ -1,17 +1,27 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import type { Role } from '../types';
-import { useRole } from '../contexts/RoleContext';
+import { useAuth } from '../contexts/RoleContext';
 
 interface ProtectedRouteProps {
   allow: Role[];
 }
 
 export function ProtectedRoute({ allow }: ProtectedRouteProps) {
-  const { role } = useRole();
+  const { user, role, loading } = useAuth();
   const location = useLocation();
 
-  // Auth integration placeholder. When real auth is added, gate on session
-  // presence here and redirect to a login page. For now we only enforce role.
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-ink-50">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
   if (!allow.includes(role)) {
     const fallback = role === 'admin' ? '/admin/dashboard' : '/applications';
     return <Navigate to={fallback} state={{ from: location }} replace />;

@@ -1,10 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { RoleProvider } from './contexts/RoleContext';
+import { AuthProvider } from './contexts/RoleContext';
 import { ApplicationProvider } from './contexts/ApplicationContext';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
-import { LandingPage } from './pages/landing/LandingPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ApplicationsDashboard } from './pages/applications/ApplicationsDashboard';
 import { ApplicationDetails } from './pages/applications/ApplicationDetails';
@@ -18,11 +17,11 @@ import { NotFoundPage } from './pages/NotFoundPage';
 
 export default function App() {
   return (
-    <RoleProvider>
+    <AuthProvider>
       <ApplicationProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
 
             {/* Unified application-centric routes — shared by all roles */}
@@ -63,6 +62,6 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </ApplicationProvider>
-    </RoleProvider>
+    </AuthProvider>
   );
 }

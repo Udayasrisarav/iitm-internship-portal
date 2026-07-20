@@ -1,10 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, X } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import type { Role } from '../../types';
 import { roleNavItems } from '../../layouts/navConfig';
 import { classNames, initials } from '../../utils/format';
-import { useRole } from '../../contexts/RoleContext';
+import { useAuth } from '../../contexts/RoleContext';
 
 interface SidebarProps {
   role: Role;
@@ -14,8 +14,12 @@ interface SidebarProps {
 
 export function Sidebar({ role, open, onClose }: SidebarProps) {
   const items = roleNavItems[role];
-  const { user } = useRole();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const onSignOut = async () => {
+    await signOut();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <>
@@ -54,7 +58,8 @@ export function Sidebar({ role, open, onClose }: SidebarProps) {
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           <NavLink
-            to="/"
+            to="/applications"
+            end
             className={({ isActive }) =>
               classNames(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
@@ -62,8 +67,8 @@ export function Sidebar({ role, open, onClose }: SidebarProps) {
               )
             }
           >
-            <Home className="h-4.5 w-4.5" />
-            Landing Page
+            <LayoutDashboard className="h-4.5 w-4.5" />
+            Dashboard
           </NavLink>
           <div className="my-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-300">
             {role}
@@ -103,7 +108,7 @@ export function Sidebar({ role, open, onClose }: SidebarProps) {
             </div>
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={onSignOut}
               className="rounded-md p-1.5 text-ink-400 transition hover:bg-ink-100 hover:text-ink-700"
               aria-label="Sign out"
               title="Sign out"
