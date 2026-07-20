@@ -1,20 +1,22 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Role, User } from '../types';
-import { supabase } from '../lib/supabaseClient';
+
+const SESSION_KEY = 'iitm_auth_user';
 
 interface AuthContextValue {
   user: User | null;
   role: Role;
   loading: boolean;
-  configError: string | null;
-  signInWithGoogle: () => Promise<void>;
+  signInWithAccount: (account: { name: string; email: string }) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
+// Back-compat alias for components that still call useRole().
+export { useAuth as useRole };
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function deriveRole(email: string | undefined | null): Role {
-  if (!email) return 'applicant';
+function deriveRole(email: string): Role {
   const local = email.split('@')[0].toLowerCase();
   if (local.includes('admin')) return 'admin';
   if (local.includes('chairman')) return 'chairman';
@@ -22,79 +24,47 @@ function deriveRole(email: string | undefined | null): Role {
   return 'applicant';
 }
 
-function mapSessionUser(sessionUser: {
-  id: string;
-  email?: string;
-  user_metadata?: { full_name?: string; name?: string; avatar_url?: string; picture?: string };
-}): User {
-  const email = sessionUser.email ?? '';
-  const name =
-    sessionUser.user_metadata?.full_name ||
-    sessionUser.user_metadata?.name ||
-    (email ? email.split('@')[0] : 'User');
-  const avatarUrl = sessionUser.user_metadata?.avatar_url || sessionUser.user_metadata?.picture;
-  return {
-    id: sessionUser.id,
-    name,
-    email,
-    role: deriveRole(email),
-    avatarUrl,
-  };
+function readStoredUser(): User | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as User;
+  } catch {
+    return null;
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [configError, setConfigError] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (!mounted) return;
-        if (data.session?.user) setUser(mapSessionUser(data.session.user));
-        setLoading(false);
-      })
-      .catch((e) => {
-        if (!mounted) return;
-        setConfigError(e instanceof Error ? e.message : 'Supabase is not configured.');
-        setLoading(false);
-      });
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) setUser(mapSessionUser(session.user));
-      else setUser(null);
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
+    setUser(readStoredUser());
+    setLoading(false);
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/applications` },
-    });
+  const signInWithAccount = useCallback(async (account: { name: string; email: string }) => {
+    const role = deriveRole(account.email);
+    const newUser: User = {
+      id: btoa(account.email),
+      name: account.name,
+      email: account.email,
+      role,
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
+    setUser(newUser);
   }, []);
 
   const signOut = useCallback(async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // ignore — env may be unconfigured
-    }
+    localStorage.removeItem(SESSION_KEY);
     setUser(null);
   }, []);
 
   const role = user?.role ?? 'applicant';
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, role, loading, configError, signInWithGoogle, signOut }),
-    [user, role, loading, configError, signInWithGoogle, signOut],
+    () => ({ user, role, loading, signInWithAccount, signOut }),
+    [user, role, loading, signInWithAccount, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -105,6 +75,3 @@ export function useAuth(): AuthContextValue {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
-
-// Back-compat alias for components that still call useRole().
-export const useRole = useAuth;
