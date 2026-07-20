@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/RoleContext';
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signInWithGoogle, user, loading } = useAuth();
+  const { signInWithGoogle, user, loading, configError } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +29,6 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await signInWithGoogle();
-      // signInWithOAuth redirects to Google; the page will reload on return.
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Google sign-in failed.');
       setSubmitting(false);
@@ -104,8 +103,10 @@ export function LoginPage() {
                 {submitting ? 'Redirecting to Google…' : 'Continue with Google'}
               </button>
 
-              {error && (
-                <p className="mt-3 text-sm font-medium text-error-600">{error}</p>
+              {(error || configError) && (
+                <div className="mt-3 rounded-lg border border-error-200 bg-error-50/60 px-3.5 py-2.5 text-sm font-medium text-error-700">
+                  {error || configError}
+                </div>
               )}
 
               <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-ink-400">

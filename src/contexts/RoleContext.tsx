@@ -6,6 +6,7 @@ interface AuthContextValue {
   user: User | null;
   role: Role;
   loading: boolean;
+  configError: string | null;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -44,15 +45,23 @@ function mapSessionUser(sessionUser: {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [configError, setConfigError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      if (data.session?.user) setUser(mapSessionUser(data.session.user));
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!mounted) return;
+        if (data.session?.user) setUser(mapSessionUser(data.session.user));
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (!mounted) return;
+        setConfigError(e instanceof Error ? e.message : 'Supabase is not configured.');
+        setLoading(false);
+      });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) setUser(mapSessionUser(session.user));
@@ -73,15 +82,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // ignore — env may be unconfigured
+    }
     setUser(null);
   }, []);
 
   const role = user?.role ?? 'applicant';
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, role, loading, signInWithGoogle, signOut }),
-    [user, role, loading, signInWithGoogle, signOut],
+    () => ({ user, role, loading, configError, signInWithGoogle, signOut }),
+    [user, role, loading, configError, signInWithGoogle, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
