@@ -1,38 +1,20 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+// Env vars are injected by Vite at build/dev start. If the dev server started
+// before .env was populated, import.meta.env will be undefined — so we fall
+// back to the values from .env directly. The anon key is public by design
+// (it ships in the client bundle regardless).
+const SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL ||
+  'https://0ec90b57d6e95fcbda19832f.supabase.co';
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
 
-function logMissingEnv(): void {
-  // Surface a clear, one-time warning in the console without throwing.
-  console.warn(
-    '[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. ' +
-      'Add them to .env and restart the dev server.',
-  );
-}
-
-// Build the client when env vars are present; otherwise provide a no-op stub
-// so the rest of the app renders and can show a helpful message.
-export const supabase: SupabaseClient =
-  supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey, {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true,
-        },
-      })
-    : (() => {
-        logMissingEnv();
-        // A minimal stub that rejects any auth call so the UI can degrade
-        // gracefully instead of crashing on import.
-        const reject = () => Promise.reject(new Error('Supabase is not configured.'));
-        return {
-          auth: {
-            getSession: reject,
-            signInWithOAuth: reject,
-            signOut: reject,
-            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-          },
-        } as unknown as SupabaseClient;
-      })();
+export const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
