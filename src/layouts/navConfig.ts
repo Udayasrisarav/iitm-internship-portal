@@ -7,13 +7,11 @@ export interface NavItem {
   end?: boolean;
 }
 
-// Application-centric navigation. Every role works from the same
-// Internship Application entity — nav entries reflect the workflow
-// stage rather than a separate business module per role.
+// Unified navigation — every role works from the same Internship Application
+// entity. Nav entries reflect what each role needs to do, not separate modules.
 export const roleNavItems: Record<Role, NavItem[]> = {
   applicant: [
-    { label: 'Dashboard', to: '/applications', icon: 'LayoutDashboard', end: true },
-    { label: 'My Application', to: '/applications/my', icon: 'FileText' },
+    { label: 'My Application', to: '/applications', icon: 'FileText', end: true },
     { label: 'New Application', to: '/applications/new', icon: 'FilePlus' },
   ],
   supervisor: [
@@ -26,14 +24,14 @@ export const roleNavItems: Record<Role, NavItem[]> = {
   ],
   admin: [
     { label: 'Dashboard', to: '/admin/dashboard', icon: 'LayoutDashboard', end: true },
-    { label: 'Applications', to: '/applications', icon: 'FolderOpen', end: false },
+    { label: 'Applications', to: '/applications', icon: 'FolderOpen' },
     { label: 'Users', to: '/admin/users', icon: 'Users' },
   ],
 };
 
 export const roleMeta: Record<Role, { title: string; subtitle: string }> = {
-  applicant: { title: 'Internship Portal', subtitle: 'Apply, track, and complete your internship' },
-  supervisor: { title: 'Internship Portal', subtitle: 'Review and verify internship applications' },
-  chairman: { title: 'Internship Portal', subtitle: 'Sign documents and certificates' },
-  admin: { title: 'Internship Portal', subtitle: 'Manage users and platform applications' },
+  applicant: { title: 'Internship Portal', subtitle: 'Your application and workflow' },
+  supervisor: { title: 'Internship Portal', subtitle: 'Verify and monitor applications' },
+  chairman: { title: 'Internship Portal', subtitle: 'Review and sign documents' },
+  admin: { title: 'Internship Portal', subtitle: 'Manage users and applications' },
 };

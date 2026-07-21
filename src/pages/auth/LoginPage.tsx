@@ -1,175 +1,73 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { GraduationCap, ShieldCheck, X, ChevronRight } from 'lucide-react';
+import { GraduationCap, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../contexts/RoleContext';
-
-const DEMO_ACCOUNTS = [
-  { name: 'Priya Nair', email: 'priya.nair@gmail.com', role: 'applicant', avatar: 'PN' },
-  { name: 'Prof. V. Mahesh', email: 'supervisor.mahesh@iitm.ac.in', role: 'supervisor', avatar: 'VM' },
-  { name: 'Dr. S. Ramachandran', email: 'chairman.ram@iitm.ac.in', role: 'chairman', avatar: 'SR' },
-  { name: 'Admin User', email: 'portaladmin@iitm.ac.in', role: 'admin', avatar: 'AU' },
-] as const;
-
-const AVATAR_COLORS: Record<string, string> = {
-  PN: 'bg-rose-500',
-  VM: 'bg-blue-600',
-  SR: 'bg-emerald-600',
-  AU: 'bg-amber-600',
-};
 
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithAccount } = useAuth();
-  const [showPicker, setShowPicker] = useState(false);
-  const [loading, setLoading] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/applications';
 
-  const handleSelectAccount = async (acc: (typeof DEMO_ACCOUNTS)[number]) => {
-    setLoading(acc.email);
-    await signInWithAccount({ name: acc.name, email: acc.email });
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    // Simulated Google OAuth — role is derived from email in the auth context.
+    // In production this would be a real Supabase OAuth call; the signed-in
+    // user's role is determined from the database, never chosen manually.
+    await signInWithAccount({ name: 'Priya Nair', email: 'priya.nair@gmail.com' });
     navigate(from, { replace: true });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ink-50 via-white to-brand-50/30">
-      <div className="flex min-h-screen flex-col lg:flex-row">
-        {/* Brand panel */}
-        <div className="relative flex flex-1 flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-700 via-brand-800 to-brand-950 p-8 text-white lg:p-12">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5" />
-          <div className="absolute -bottom-32 -left-10 h-80 w-80 rounded-full bg-white/5" />
+    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4">
+      <div className="w-full max-w-md">
+        {/* Institutional header */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-700 font-display text-lg font-bold text-white shadow-lg shadow-brand-700/20">
+            IITM
+          </span>
+          <h1 className="mt-5 font-display text-xl font-bold text-ink-900">
+            IIT Madras
+          </h1>
+          <p className="mt-1 text-sm text-ink-500">Internship Management System</p>
+        </div>
 
-          <div className="relative z-10">
-            <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 font-display text-sm font-bold backdrop-blur">
-                IITM
-              </span>
-              <div>
-                <p className="font-display text-lg font-bold">IIT Madras</p>
-                <p className="text-xs text-white/60">Internship Portal</p>
-              </div>
-            </div>
-          </div>
+        {/* Sign-in card */}
+        <div className="card p-8">
+          <h2 className="text-center font-display text-lg font-semibold text-ink-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-1 text-center text-sm text-ink-500">
+            Use your authorised Google account to continue.
+          </p>
 
-          <div className="relative z-10">
-            <h1 className="mt-8 max-w-md font-display text-3xl font-bold leading-tight lg:text-4xl">
-              Internship Management System
-            </h1>
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-white/70">
-              A unified workflow for applicants, supervisors, and chairman — from application to certificate.
-            </p>
-            <div className="mt-10 hidden grid-cols-3 gap-4 lg:grid">
-              {[
-                { label: 'Workflow Stages', value: '11' },
-                { label: 'User Roles', value: '4' },
-                { label: 'Process', value: '1' },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-xl bg-white/5 p-4 ring-1 ring-inset ring-white/10 backdrop-blur"
-                >
-                  <p className="text-xs font-medium text-brand-200">{stat.label}</p>
-                  <p className="mt-1 font-display text-2xl font-bold text-white">{stat.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-3 text-sm font-medium text-ink-700 ring-1 ring-inset ring-ink-200 transition hover:bg-ink-50 disabled:opacity-60"
+          >
+            {loading ? (
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+            ) : (
+              <GoogleIcon />
+            )}
+            {loading ? 'Signing in…' : 'Continue with Google'}
+          </button>
 
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 text-sm text-white/70">
-              <GraduationCap className="h-5 w-5 text-white/50" />
-              <span>Indian Institute of Technology Madras</span>
-            </div>
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-ink-400">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Access is restricted to authorised IITM accounts.</span>
           </div>
         </div>
 
-        {/* Sign-in panel */}
-        <div className="flex flex-1 items-center justify-center p-6 lg:p-12">
-          <div className="w-full max-w-md">
-            <h2 className="font-display text-2xl font-bold text-ink-900">Sign in</h2>
-            <p className="mt-1 text-sm text-ink-500">Use your Google account to access the portal.</p>
-
-            <div className="mt-8 space-y-3">
-              <button
-                type="button"
-                onClick={() => setShowPicker(true)}
-                className="btn-secondary w-full justify-center bg-white px-4 py-3 text-base ring-1 ring-inset ring-ink-200 hover:bg-ink-50"
-              >
-                <GoogleIcon />
-                Continue with Google
-              </button>
-
-              <p className="flex items-center justify-center gap-1.5 text-xs text-ink-400">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Your account determines your role in the portal.
-              </p>
-            </div>
-          </div>
-        </div>
+        <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-ink-400">
+          <GraduationCap className="h-3.5 w-3.5" />
+          Indian Institute of Technology Madras
+        </p>
       </div>
-
-      {/* Google account picker modal */}
-      {showPicker && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="relative w-full max-w-sm rounded-2xl bg-white shadow-2xl ring-1 ring-ink-200/50 animate-scale-in">
-            {/* Google-style header */}
-            <div className="flex items-start justify-between px-6 pt-6">
-              <div className="flex items-center gap-2">
-                <GoogleIcon />
-                <span className="text-sm font-medium text-ink-600">Sign in with Google</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPicker(false)}
-                className="rounded-full p-1 text-ink-400 transition hover:bg-ink-100"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="mt-4 px-6">
-              <p className="text-xs text-ink-400">Choose an account to continue to IITM Internship Portal</p>
-            </div>
-
-            <div className="mt-3 divide-y divide-ink-100">
-              {DEMO_ACCOUNTS.map((acc) => (
-                <button
-                  key={acc.email}
-                  type="button"
-                  onClick={() => handleSelectAccount(acc)}
-                  disabled={loading !== null}
-                  className="flex w-full items-center gap-3 px-6 py-3.5 text-left transition hover:bg-ink-50 disabled:pointer-events-none disabled:opacity-60"
-                >
-                  <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${AVATAR_COLORS[acc.avatar]}`}
-                  >
-                    {loading === acc.email ? (
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    ) : (
-                      acc.avatar
-                    )}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-ink-900">{acc.name}</p>
-                    <p className="truncate text-xs text-ink-400">{acc.email}</p>
-                  </div>
-                  <span className="ml-auto rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-semibold capitalize text-ink-500">
-                    {acc.role}
-                  </span>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-ink-300" />
-                </button>
-              ))}
-            </div>
-
-            <div className="px-6 py-4">
-              <p className="text-center text-[11px] text-ink-300">
-                This is a demo environment. Select any account above.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

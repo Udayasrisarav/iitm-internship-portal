@@ -35,7 +35,7 @@ export function Sidebar({ role, open, onClose }: SidebarProps) {
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-ink-100 px-5">
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/applications')}
             className="flex items-center gap-2.5 text-left"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-700 font-display text-xs font-bold text-white">
@@ -100,11 +100,11 @@ export function Sidebar({ role, open, onClose }: SidebarProps) {
         <div className="border-t border-ink-100 p-3">
           <div className="flex items-center gap-3 rounded-lg px-2 py-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">
-              {initials(user.name)}
+              {initials(user?.name ?? '')}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-ink-900">{user.name}</p>
-              <p className="truncate text-xs text-ink-400">{user.email}</p>
+              <p className="truncate text-sm font-semibold text-ink-900">{user?.name}</p>
+              <p className="truncate text-xs text-ink-400">{user?.email}</p>
             </div>
             <button
               type="button"

@@ -24,9 +24,10 @@ export default function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
 
-            {/* Unified application-centric routes — shared by all roles */}
+            {/* Unified routes — shared by all roles. Role controls permissions,
+                not navigation. DashboardLayout derives role from auth context. */}
             <Route element={<ProtectedRoute allow={['applicant', 'supervisor', 'chairman', 'admin']} />}>
-              <Route element={<DashboardLayout role="applicant" />}>
+              <Route element={<DashboardLayout />}>
                 <Route path="/applications" element={<ApplicationsDashboard />} />
                 <Route path="/applications/new" element={<ApplicationWizard />} />
                 <Route path="/applications/my" element={<Navigate to="/applications" replace />} />
@@ -37,13 +38,6 @@ export default function App() {
                 <Route path="/applications/:id/activities" element={<ApplicantActivities />} />
                 <Route path="/applications/:id/attendance" element={<ApplicantAttendance />} />
                 <Route path="/applications/:id/certificates" element={<ApplicationDetails />} />
-              </Route>
-            </Route>
-
-            {/* Admin-only routes */}
-            <Route element={<ProtectedRoute allow={['admin']} />}>
-              <Route element={<DashboardLayout role="admin" />}>
-                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
               </Route>
@@ -56,6 +50,7 @@ export default function App() {
             <Route path="/supervisor/*" element={<Navigate to="/applications" replace />} />
             <Route path="/chairman" element={<Navigate to="/applications" replace />} />
             <Route path="/chairman/*" element={<Navigate to="/applications" replace />} />
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/applications" element={<Navigate to="/applications" replace />} />
 
             <Route path="*" element={<NotFoundPage />} />

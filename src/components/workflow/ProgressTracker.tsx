@@ -1,85 +1,28 @@
-import { Check } from 'lucide-react';
+import { CheckCircle2, Clock, CircleDashed } from 'lucide-react';
 import type { WorkflowStage } from '../../types';
-import { classNames } from '../../utils/format';
+import { formatDate } from '../../utils/format';
 
-interface ProgressTrackerProps {
-  stages: WorkflowStage[];
-  compact?: boolean;
-}
-
-export function ProgressTracker({ stages, compact = false }: ProgressTrackerProps) {
-  const doneCount = stages.filter((s) => s.status === 'done').length;
-  const percent = Math.round((doneCount / stages.length) * 100);
-
-  if (compact) {
-    return (
-      <div className="card p-5">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-ink-600">Workflow Progress</p>
-          <p className="font-display text-lg font-bold text-ink-900">{percent}%</p>
-        </div>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-ink-100">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-600 transition-all duration-500"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-        <p className="mt-2 text-xs text-ink-400">{doneCount} of {stages.length} stages complete</p>
-      </div>
-    );
-  }
-
+export function ProgressTracker({ stages }: { stages: WorkflowStage[] }) {
   return (
     <div className="card p-6">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h3 className="section-title">Workflow Progress</h3>
-          <p className="section-subtitle">{doneCount} of {stages.length} stages complete</p>
-        </div>
-        <p className="font-display text-2xl font-bold text-brand-600">{percent}%</p>
-      </div>
-
-      <ol className="relative space-y-5">
+      <h3 className="section-title">Workflow Progress</h3>
+      <p className="section-subtitle">Current stage and completion history.</p>
+      <ol className="mt-5 space-y-4">
         {stages.map((stage, idx) => {
-          const isDone = stage.status === 'done';
-          const isCurrent = stage.status === 'current';
+          const Icon = stage.status === 'done' ? CheckCircle2 : stage.status === 'current' ? Clock : CircleDashed;
+          const color = stage.status === 'done' ? 'text-success-600' : stage.status === 'current' ? 'text-brand-600' : 'text-ink-300';
+          const isLast = idx === stages.length - 1;
           return (
-            <li key={stage.id} className="relative flex gap-3.5">
-              {idx < stages.length - 1 && (
-                <span
-                  className={classNames(
-                    'absolute left-[13px] top-7 h-[calc(100%+4px)] w-0.5',
-                    isDone ? 'bg-brand-500' : 'bg-ink-200',
-                  )}
-                />
-              )}
-              <span
-                className={classNames(
-                  'relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-4 ring-white',
-                  isDone && 'bg-brand-600 text-white',
-                  isCurrent && 'bg-white text-brand-600 ring-brand-100 ring-4 border-2 border-brand-500',
-                  !isDone && !isCurrent && 'bg-ink-100 text-ink-400 border-2 border-ink-200',
-                )}
-              >
-                {isDone ? <Check className="h-4 w-4" /> : <span className="text-xs font-semibold">{idx + 1}</span>}
-              </span>
-              <div className="pt-0.5">
-                <p
-                  className={classNames(
-                    'text-sm font-semibold',
-                    isDone && 'text-ink-900',
-                    isCurrent && 'text-brand-700',
-                    !isDone && !isCurrent && 'text-ink-500',
-                  )}
-                >
-                  {stage.label}
-                </p>
+            <li key={stage.id} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <Icon className={`h-5 w-5 shrink-0 ${color}`} />
+                {!isLast && <span className={`mt-1 w-px flex-1 ${stage.status === 'done' ? 'bg-success-300' : 'bg-ink-200'}`} style={{ minHeight: '1.5rem' }} />}
+              </div>
+              <div className={`min-w-0 pb-1 ${stage.status === 'pending' ? 'opacity-60' : ''}`}>
+                <p className={`text-sm font-medium ${stage.status === 'pending' ? 'text-ink-400' : 'text-ink-900'}`}>{stage.label}</p>
                 <p className="text-xs text-ink-400">{stage.description}</p>
-                {isCurrent && (
-                  <span className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-medium text-brand-600">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-500" /> Current stage
-                  </span>
-                )}
+                {stage.completedAt && <p className="mt-0.5 text-xs text-success-600">Completed {formatDate(stage.completedAt)}</p>}
+                {stage.status === 'current' && <p className="mt-0.5 text-xs font-medium text-brand-600">In progress</p>}
               </div>
             </li>
           );
