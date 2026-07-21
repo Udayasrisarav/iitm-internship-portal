@@ -7,7 +7,7 @@ const DEMO_ACCOUNTS = [
   { name: 'Priya Nair', email: 'priya.nair@gmail.com', role: 'applicant', avatar: 'PN' },
   { name: 'Prof. V. Mahesh', email: 'supervisor.mahesh@iitm.ac.in', role: 'supervisor', avatar: 'VM' },
   { name: 'Dr. S. Ramachandran', email: 'chairman.ram@iitm.ac.in', role: 'chairman', avatar: 'SR' },
-  { name: 'Admin User', email: 'admin@iitm.ac.in', role: 'admin', avatar: 'AU' },
+  { name: 'Admin User', email: 'portaladmin@iitm.ac.in', role: 'admin', avatar: 'AU' },
 ] as const;
 
 const AVATAR_COLORS: Record<string, string> = {

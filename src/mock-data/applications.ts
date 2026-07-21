@@ -496,7 +496,7 @@ export const mockChairmanUser: User = {
 export const mockAdminUser: User = {
   id: 'usr-admin-01',
   name: 'Portal Admin',
-  email: 'admin@iitm.ac.in',
+  email: 'portaladmin@iitm.ac.in',
   role: 'admin',
 };
 
